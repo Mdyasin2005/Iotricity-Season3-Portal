@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOTRICITY S3 | SCEE UPLINK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Doto:wght,ROND@700,100&display=swap');
+        .doto-font {
+  font-family: "Doto", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: "ROND" 100;
+}
+/* Add this to your <style> section */
+#submitBtn {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--iot-cyan);
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+#submitBtn:hover {
+    background: var(--iot-cyan);
+    color: black;
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.6);
+    letter-spacing: 0.6em; /* Spreads the text out on hover */
+}
+
+/* Subtle scanning line effect */
+#submitBtn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    animation: scan 3s infinite;
+    pointer-events: none;
+}
+
+@keyframes scan {
+    0% { transform: translate(-100%, -100%) rotate(45deg); }
+    100% { transform: translate(100%, 100%) rotate(45deg); }
+}
+        :root { --iot-cyan: #00f2ff; --iot-bg: #030303; }
+        body { background: var(--iot-bg); color: #ececec; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; margin: 0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* LOADING SCREEN */
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .term-box { width: 100%; max-width: 600px; height: 300px; overflow: hidden; position: relative; padding: 20px; }
+        .cursor { display: inline-block; width: 8px; height: 15px; background: var(--iot-cyan); animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        #main-content { display: none; height: 100vh; overflow-y: auto; }
+
+        .t-label { font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--iot-cyan); font-weight: 700; }
+        .idea-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: rgba(0, 242, 255, 0.1); border: 1px solid rgba(0, 242, 255, 0.1); }
+        .idea-card { background: var(--iot-bg); padding: 2rem; transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
+        .idea-card:hover { background: rgba(0, 242, 255, 0.03); transform: scale(0.98); z-index: 10; border: 1px solid var(--iot-cyan); }
+        
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        input, select, textarea { background: transparent !important; border-bottom: 1px solid rgba(255,255,255,0.1) !important; padding: 12px 0; outline: none; transition: border-color 0.3s; font-size: 0.875rem; color: white; }
+        input:focus, select:focus, textarea:focus { border-color: var(--iot-cyan) !important; }
+        
+        #spotlight { position: fixed; width: 800px; height: 800px; background: radial-gradient(circle, rgba(0,242,255,0.04) 0%, transparent 70%); pointer-events: none; z-index: 999; transform: translate(-50%, -50%); border-radius: 50%; }
+        
+        .success-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; flex-direction: column; justify-content: center; align-items: center; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="term-box mono text-[12px] text-cyan-500/80">
+            <div id="terminal-output"></div>
+            <span class="cursor"></span>
+        </div>
+        <div class="w-64 h-[2px] bg-white/10 mt-8 relative overflow-hidden">
+            <div id="progress-bar" class="absolute top-0 left-0 h-full bg-cyan-400 w-0"></div>
+        </div>
+        <div class="t-label mt-4 opacity-50">INITIALIZING_GMAIL_UPLINK...</div>
+    </div>
+
+    <div id="success" class="success-overlay">
+        <span class="t-label text-white mb-4">Transmission_Complete</span>
+        <h2 class="text-4xl font-bold text-cyan-400">ENCRYPTED MAIL SENT</h2>
+        <p class="mono text-[10px] mt-4 opacity-40">Check yasinmondal8609@gmail.com for logs.</p>
+        <button onclick="location.reload()" class="mt-8 t-label border border-white/20 px-6 py-2">Return_to_Terminal</button>
+    </div>
+
+    <div id="main-content">
+        <div id="spotlight"></div>
+
+        <nav class="fixed top-0 w-full z-50 p-6 flex justify-between items-center bg-black/50 backdrop-blur-md border-b border-white/5">
+            <div class="t-label">SCEE // IOTRICITY_S3.SYS</div>
+            <div class="t-label opacity-40">UPLINK: ACTIVE</div>
+        </nav>
+
+        <section class="h-[60vh] flex flex-col justify-center items-center text-center px-6">
+            <div class="reveal">
+                <span class="t-label">Iotricity Season 03</span>
+                <h1 class="doto-font text-6xl md:text-8xl font-bold tracking-tighter mt-4 mb-6">I N N O V A T E  I O T</h1>
+                <p class="mono text-[10px] opacity-40 tracking-widest uppercase">Secured Email Transmission Mode</p>
+            </div>
+        </section>
+
+        <div class="sticky top-[73px] z-40 bg-black/80 backdrop-blur-xl border-y border-white/5 py-4 px-10 flex justify-between items-center">
+            <span class="t-label">Problem_Matrix</span>
+            <input type="text" id="search" placeholder="SEARCH_IDEAS..." class="mono text-[10px] w-48 border-none bg-transparent text-cyan-400 outline-none">
+        </div>
+        <section id="matrix" class="idea-grid"></section>
+
+        <section id="register" class="py-32 px-6 flex justify-center bg-[#050505]">
+            <div class="reveal w-full max-w-2xl border border-cyan-500/10 p-12 bg-black relative">
+                <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+                <div class="mb-10"><span class="t-label">Submission_Portal</span><h3 class="text-3xl font-bold mt-2">Show Us Your Creativity</h3></div>
+                
+                <form id="iotForm" class="space-y-8">
+    <input type="text" name="Lead_Name" id="name" placeholder="Lead Hacker Name" required>
+    <input type="text" name="Team_Name" id="team" placeholder="Team Name" required>
+    <input type="email" name="Email" id="email" placeholder="Contact Email" required>
+    <select name="Project_Idea" id="ideaSelect"></select>
+    <input type="url" name="Project_Link" id="repo" placeholder="Project Link" required>
+    
+   <button type="submit" id="submitBtn" class="w-full py-5 bg-transparent text-cyan-400 font-black t-label mt-8">
+    EXECUTE DATA
+</button>
+</form>
+            </div>
+        </section>
+
+        <footer class="py-12 border-t border-white/5 text-center">
+            <p class="t-label opacity-20">Target_Inbox: yasinmondal8609@gmail.com</p>
+        </footer>
+    </div>
+
+    <script>
+        // HACKER LOADING SEQUENCE
+        const logs = [
+            "> INITIALIZING GMAIL GATEWAY...",
+            "> TARGET: yasinmondal8609@gmail.com",
+            "> SECURING SMTP_TUNNEL...",
+            "> LOADING_IOT_PROJECT_DATA...",
+            "> VERIFYING SCEE_AUTH_KEY...",
+            "> ENCRYPTION: AES-256-GCM [OK]",
+            "> PACKET_TYPE: SUBMISSION_FORM",
+            "> READY_FOR_UPLINK..."
+        ];
+
+        let logIdx = 0;
+        const terminal = document.getElementById('terminal-output');
+        const loader = document.getElementById('loader');
+        const main = document.getElementById('main-content');
+        const progress = document.getElementById('progress-bar');
+
+        function runLoader() {
+            if (logIdx < logs.length) {
+                const p = document.createElement('div');
+                p.textContent = logs[logIdx];
+                terminal.appendChild(p);
+                logIdx++;
+                progress.style.width = (logIdx / logs.length) * 100 + "%";
+                setTimeout(runLoader, 1800); // Distributed over ~15 seconds
+            } else {
+                setTimeout(() => {
+                    loader.style.opacity = "0";
+                    setTimeout(() => {
+                        loader.style.display = "none";
+                        main.style.display = "block";
+                        document.body.style.overflow = "auto";
+                    }, 500);
+                }, 1000);
+            }
+        }
+        runLoader();
+
+        // Ideas Logic (Truncated for space, contains all 30)
+        const ideas = [
+            { id: "01", title: "Smart Plant Health", desc: "Soil moisture, temp, humidity sensors with mobile alerts." },
+            { id: "02", title: "Smart Parking", desc: "Ultrasonic sensor network for real-time slot dashboards." },
+            { id: "03", title: "Energy Optimizer", desc: "Analyzing patterns to suggest energy-saving actions." },
+            { id: "04", title: "Water Quality Mon.", desc: "Measuring pH, turbidity, and TDS for alerts." },
+            { id: "05", title: "Remote Health Band", desc: "Wearable heart/SpO2 tracking for doctors." },
+            { id: "06", title: "Garbage Monitoring", desc: "Fill-level detection to optimize collection." },
+            { id: "07", title: "Smart Irrigation", desc: "Moisture sensors + weather API for pumps." },
+            { id: "08", title: "Gas Leakage Alert", desc: "LPG sensors + SMS triggers + exhaust." },
+            { id: "09", title: "Cold Storage Mon.", desc: "Temp/Humidity tracking for perishables." },
+            { id: "10", title: "Traffic Control", desc: "Density-based dynamic traffic light timing." },
+            { id: "11", title: "Hospital Bed Mon.", desc: "Movement alerts for patient safety." },
+            { id: "12", title: "Livestock Tracking", desc: "GPS and health telemetry for animals." },
+            { id: "13", title: "Forest Fire Detector", desc: "Early warning via smoke/gas/temp sensors." },
+            { id: "14", title: "Attendance System", desc: "RFID-based automated entry/exit tracking." },
+            { id: "15", title: "Smart Helmet", desc: "Alcohol sensing & accident detection." },
+            { id: "16", title: "Flood Alert System", desc: "River water-level telemetry." },
+            { id: "17", title: "Street Light Control", desc: "LDR/motion dimming to save electricity." },
+            { id: "18", title: "Farming Drone", desc: "Cloud-linked fertilizer/health analysis." },
+            { id: "19", title: "Fridge Monitoring", desc: "RFID tracking for food expiry." },
+            { id: "20", title: "Blind Nav Stick", desc: "Ultrasonic detection with haptic feedback." },
+            { id: "21", title: "Industrial Safety", desc: "Gas levels & safety gear compliance." },
+            { id: "22", title: "Warehouse Tracking", desc: "RFID for real-time stock management." },
+            { id: "23", title: "Water Usage Tracker", desc: "Household analytics to reduce waste." },
+            { id: "24", title: "Air Pollution Mon.", desc: "PM2.5/CO2 monitoring for AQI displays." },
+            { id: "25", title: "Ambulance Priority", desc: "Auto green-light routing for emergencies." },
+            { id: "26", title: "Sleep Monitoring", desc: "Smart mattress analysis for health insights." },
+            { id: "27", title: "Panic Button", desc: "Wearable for location family alerts." },
+            { id: "28", title: "Building Automation", desc: "Climate orchestration for smart hubs." },
+            { id: "29", title: "EV Charging Mon.", desc: "Power usage & slot availability for EV." },
+            { id: "30", title: "Weather Station", desc: "Rainfall, wind, and temp cloud data." }
+        ];
+
+        const matrix = document.getElementById('matrix');
+        const select = document.getElementById('ideaSelect');
+        ideas.forEach(item => {
+            const card = document.createElement('div'); card.className = 'idea-card reveal';
+            card.innerHTML = `<span class="t-label opacity-40">${item.id}</span><h3 class="text-white text-lg font-bold mt-2 mb-3">${item.title}</h3><p class="t-desc">${item.desc}</p>`;
+            matrix.appendChild(card);
+            const opt = document.createElement('option'); opt.value = item.title; opt.innerText = `${item.id} - ${item.title}`;
+            select.appendChild(opt);
+        });
+
+        // Search
+        document.getElementById('search').oninput = (e) => {
+            const val = e.target.value.toLowerCase();
+            document.querySelectorAll('.idea-card').forEach((card, i) => {
+                card.style.display = ideas[i].title.toLowerCase().includes(val) ? 'block' : 'none';
+            });
+        };
+
+        // GMAIL FORM SUBMISSION (Using Formspree AJAX)
+       const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybKOdXwZZksFnY29E1ZzUv0Pb_AYs0-XCiEwtzurth8-VjfbsdWV5MT3uOOSPAR958/exec'
+
+const form = document.getElementById('iotForm');
+form.onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.innerText = "SYNCING_WITH_SHEET...";
+    btn.disabled = true;
+
+    // This automatically grabs all data using the 'name' attributes
+    const formData = new URLSearchParams(new FormData(form));
+
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: formData,
+            mode: 'no-cors' // Required for Google Scripts
+        });
+
+        // Show your existing success overlay
+        document.getElementById('success').style.display = 'flex';
+        document.getElementById('main-content').style.opacity = '0.3';
+        
+    } catch (error) {
+        alert("Uplink failed. Please try again.");
+        btn.innerText = "EXECUTE_DATA_SYNC";
+        btn.disabled = false;
+    }
+};
+        const spotlight = document.getElementById('spotlight');
+        window.onmousemove = (e) => { spotlight.style.left = e.clientX + 'px'; spotlight.style.top = e.clientY + 'px'; };
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
